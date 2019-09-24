@@ -22,18 +22,45 @@ search: true
 
 --- 
 
-# /MESSAGES
-## ***GET*** 
+# /AUTHENTICATE
+## ***POST*** 
 
-**Summary:** List Messages
+**Summary:** Authenticate and obtain a token
 
 **Description:** 
-<p>Returns a list of Messages, optionally paginated. Note: the maximum number
-returned per page in any case is 50.</p>
+<p>Pass in your API publishable key and secret keys and obtain a token to use
+for subsequent API calls. Tokens expire after 24 hours.</p>
 
 
 ### HTTP Request 
-`***GET*** /messages` 
+`***POST*** /authenticate` 
+
+**Parameters**
+
+| Name | Located in | Description | Required | Type |
+| ---- | ---------- | ----------- | -------- | ---- |
+| secret_key | formData | Your secret API key, e.g. +sk_test_rgyzxu6y_86FXE5YSMjN+ | Yes | string |
+| api_key | formData | Your publishable API key, e.g. +pk_test_k4ttwB9bYVdmVyXgA7fD+ | Yes | string |
+
+**Responses**
+
+| Code | Description |
+| ---- | ----------- |
+| 401 | Your api_key or secret_key is invalid |
+| 422 | You have not specified both api_key and secret_key |
+
+# /BADGES
+## ***GET*** 
+
+**Summary:** List available Badges
+
+**Description:** 
+<p>Returns a list of available Badges, optionally paginated. Note: the maximum
+number returned per page in any case is 50.</p>
+
+
+### HTTP Request 
+`***GET*** /badges` 
 
 **Parameters**
 
@@ -42,9 +69,7 @@ returned per page in any case is 50.</p>
 | token | query | Token obtained from /authorize | Yes | string |
 | page | query | The page number to start from | No | number |
 | per | query | The size of the page | No | number |
-| job_id | query | Filter Messages by Job | No | number |
-| sender_id | query | Filter Messages by Sender (User ID) | No | number |
-| receiver_id | query | Filter Messages by Receiver (User ID) | No | number |
+| query | query | Filter by name of badge | No | string |
 
 **Responses**
 
@@ -54,146 +79,88 @@ returned per page in any case is 50.</p>
 
 ## ***POST*** 
 
-**Summary:** Create a Message
+**Summary:** Create a new Badge
 
 **Description:** 
 
 ### HTTP Request 
-`***POST*** /messages` 
+`***POST*** /badges` 
 
 **Parameters**
 
 | Name | Located in | Description | Required | Type |
 | ---- | ---------- | ----------- | -------- | ---- |
-| message[body] | formData | The text content of this Message | Yes | string |
-| message[job_id] | formData | ID of the Job to which this Message relates | Yes | number |
-| message[receiver_id] | formData | User ID of recipient of this Message. Can be a Wonoloer or a Requestor | Yes | number |
-| message[sender_id] | formData | User ID of sender of this Message. Can be a Wonoloer or a Requestor | Yes | number |
+| badge[description] | formData | Description of Badge Detail | Yes | string |
+| badge[name] | formData | Name of Badge | Yes | string |
 | token | formData | Token obtained from /authorize | Yes | string |
-| message[image_url] | formData | The URL of an image to accompany this Message | No | string |
-| message[read_at] | formData | If read, when this message was read | No | string |
+| badge[info_url] | formData | External Url for more Information about Badge | No | string |
+| badge[remote_icon_url] | formData | Remote URL of Icon Image | No | string |
+| badge[is_soft] | formData | Allow Wonoloers to be ranked/notified about a job even though they do not have the badge | No | boolean |
 
 **Responses**
 
 | Code | Description |
 | ---- | ----------- |
-| 401 | Unauthorized |
+| 200 | ok |
 
-# /MESSAGES/{ID}
+# /BADGES/{ID}
 ## ***GET*** 
 
-**Summary:** Get a specific Message
+**Summary:** Get a specific Badge
 
 **Description:** 
 
 ### HTTP Request 
-`***GET*** /messages/{id}` 
+`***GET*** /badges/{id}` 
 
 **Parameters**
 
 | Name | Located in | Description | Required | Type |
 | ---- | ---------- | ----------- | -------- | ---- |
 | token | query | Token obtained from /authorize | Yes | string |
-| id | path | ID of Message | Yes | number |
+| id | path |  | Yes | number |
 
 **Responses**
 
 | Code | Description |
 | ---- | ----------- |
-| 401 | Unauthorized |
+| 200 | ok |
 
-# /JOBS
-## ***GET*** 
-
-**Summary:** List Jobs
-
-**Description:** 
-<p>Returns a list of Jobs, optionally paginated. Note: the maximum number
-returned per page in any case is 50.</p>
-
-
-### HTTP Request 
-`***GET*** /jobs` 
-
-**Parameters**
-
-| Name | Located in | Description | Required | Type |
-| ---- | ---------- | ----------- | -------- | ---- |
-| token | query | Token obtained from /authorize | Yes | string |
-| page | query | The page number to start from | No | number |
-| per | query | The size of the page | No | number |
-| state | query | Filter Jobs by state | No | string |
-| job_request_id | query | List jobs for the specified Job Request | No | number |
-| classification | query | Return jobs by a specific tax classification | No | string |
-| w2_hourly_rate | query | Return jobs by a specific hourly rate | No | number |
-| w2_pay_status | query | Return jobs by a specific pay status (not_started pending paid) | No | string |
-| updated_before | query | Return jobs by those that were last updated before provided DateTime | No | string |
-| updated_after | query | Return jobs by those that were last updated after provided DateTime | No | string |
-
-**Responses**
-
-| Code | Description |
-| ---- | ----------- |
-| 401 | Unauthorized |
-
-## ***POST*** 
-
-**Summary:** Create a Job
-
-**Description:** 
-
-### HTTP Request 
-`***POST*** /jobs` 
-
-**Parameters**
-
-| Name | Located in | Description | Required | Type |
-| ---- | ---------- | ----------- | -------- | ---- |
-| job[job_request_id] | formData | ID of the Job Request being fulfilled by this Job | Yes | number |
-| job[worker_id] | formData | ID of the Worker to perform the Job | Yes | number |
-| token | formData | Token obtained from /authorize | Yes | string |
-| job[requestor_notes] | formData | Arbitary text to be attached to this Job - not visible to Worker | No | string |
-
-**Responses**
-
-| Code | Description |
-| ---- | ----------- |
-| 403 | Forbidden - if you have Public Pool access only |
-
-# /JOBS/ASSIGN
-## ***POST*** 
-
-**Summary:** Assign a Job
-
-**Description:** 
-
-### HTTP Request 
-`***POST*** /jobs/assign` 
-
-**Parameters**
-
-| Name | Located in | Description | Required | Type |
-| ---- | ---------- | ----------- | -------- | ---- |
-| job[job_request_id] | formData | ID of the Job Request being fulfilled by this Job | Yes | number |
-| job[worker_id] | formData | ID of the Worker to perform the Job | Yes | number |
-| token | formData | Token obtained from /authorize | Yes | string |
-| job[requestor_notes] | formData | Arbitary text to be attached to this Job - not visible to Worker | No | string |
-
-**Responses**
-
-| Code | Description |
-| ---- | ----------- |
-| 403 | Forbidden - if you have Public Pool access only |
-
-# /JOBS/{ID}
 ## ***PATCH*** 
 
-**Summary:** Update a Job
+**Summary:** Update a Badge
 
 **Description:** 
 
 ### HTTP Request 
-`***PATCH*** /jobs/{id}` 
+`***PATCH*** /badges/{id}` 
+
+**Parameters**
+
+| Name | Located in | Description | Required | Type |
+| ---- | ---------- | ----------- | -------- | ---- |
+| badge[description] | formData | Description of Badge Detail | Yes | string |
+| badge[name] | formData | Name of Badge | Yes | string |
+| token | formData | Token obtained from /authorize | Yes | string |
+| id | path |  | Yes | number |
+| badge[info_url] | formData | External Url for more Information about Badge | No | string |
+| badge[remote_icon_url] | formData | Remote URL of Icon Image | No | string |
+| badge[is_soft] | formData | Allow Wonoloers to be ranked/notified about a job even though they do not have the badge | No | boolean |
+
+**Responses**
+
+| Code | Description |
+| ---- | ----------- |
+| 200 | ok |
+
+## ***DELETE*** 
+
+**Summary:** Delete a Badge
+
+**Description:** 
+
+### HTTP Request 
+`***DELETE*** /badges/{id}` 
 
 **Parameters**
 
@@ -201,31 +168,142 @@ returned per page in any case is 50.</p>
 | ---- | ---------- | ----------- | -------- | ---- |
 | token | formData | Token obtained from /authorize | Yes | string |
 | id | path |  | Yes | number |
-| state | formData | Use 'cancelled' if you want cancel a job. | No | string |
-| actual_duration | formData | The actual duration of a job, in minutes | No | number |
-| cancelled_reason | formData | Give a reason such as 'admin_cancelled', 'decided_to_cancel', or 'asked_to_cancel' so that the worker will not receive notifications for this job again | No | string |
 
 **Responses**
 
 | Code | Description |
 | ---- | ----------- |
-| 403 | Forbidden - if you have Public Pool access only |
+| 200 | ok |
 
-## ***GET*** 
+# /CUSTOMERS
+## ***POST*** 
 
-**Summary:** Get a specific Job
+**Summary:** Create a Customer
 
 **Description:** 
 
 ### HTTP Request 
-`***GET*** /jobs/{id}` 
+`***POST*** /customers` 
 
 **Parameters**
 
 | Name | Located in | Description | Required | Type |
 | ---- | ---------- | ----------- | -------- | ---- |
-| token | query | Token obtained from /authorize | Yes | string |
-| id | path |  | Yes | number |
+| customer[name] | formData | Customer Name | Yes | string |
+| token | formData | Token obtained from /authenticate | Yes | string |
+| customer[account_owner] | formData | Account Owner | No | string |
+| customer[account_manager] | formData | Account Manager | No | string |
+| customer[address] | formData | Address | No | string |
+| customer[city] | formData | City | No | string |
+| customer[state] | formData | State | No | string |
+| customer[zip] | formData | Zip | No | string |
+| customer[phone] | formData | Phone | No | string |
+| customer[contact_first_name] | formData | Contact First Name | No | string |
+| customer[contact_last_name] | formData | Contact Last Name | No | string |
+| customer[contact_email] | formData | Contact Email | No | string |
+| customer[billing_first_name] | formData | Billing First Name - must be between 1 and 50 characters in length | No | string |
+| customer[billing_last_name] | formData | Billing Last Name - must be between 1 and 50 characters in length | No | string |
+| customer[billing_email] | formData | Billing Email - must be between 1 and 255 characters in length | No | string |
+| customer[billing_phone] | formData | Billing Phone - must be between 1 and 50 characters in length | No | string |
+| customer[fee_percentage] | formData | Fee Percentage - must be between 0.0 and 1.0 | No | number |
+| customer[can_post_w2] | formData | True if this Customer can post w2 job requests. Default is False when not set | No | boolean |
+| customer[can_post_1099] | formData | True if this Customer can post 1099 job request. Default is True when not set | No | boolean |
+| customer[can_use_premier_features] | formData | True if this Customer can use premium features | No | boolean |
+| customer[use_start_and_complete_pin] | formData | True if this Customer can use Start and Complete Pin. Default is False when left blank or not set | No | boolean |
+| customer[strategic_pilot] | formData | True if this Customer is strategic pilot | No | boolean |
+| customer[use_pending_state] | formData | True if this Customer can use Pending Workflow. Default is False when not set | No | boolean |
+
+**Responses**
+
+| Code | Description |
+| ---- | ----------- |
+| 422 | Could not save the Customer |
+
+# /CUSTOMERS/{ID}
+## ***GET*** 
+
+**Summary:** Get a specific Customer
+
+**Description:** 
+
+### HTTP Request 
+`***GET*** /customers/{id}` 
+
+**Parameters**
+
+| Name | Located in | Description | Required | Type |
+| ---- | ---------- | ----------- | -------- | ---- |
+| token | query | Token obtained from /authenticate | Yes | string |
+| id | path | ID of Customer | Yes | number |
+
+**Responses**
+
+| Code | Description |
+| ---- | ----------- |
+| 404 | Not found. No Customer with the specified ID can be found |
+
+## ***PATCH*** 
+
+**Summary:** Update a Customer
+
+**Description:** 
+
+### HTTP Request 
+`***PATCH*** /customers/{id}` 
+
+**Parameters**
+
+| Name | Located in | Description | Required | Type |
+| ---- | ---------- | ----------- | -------- | ---- |
+| customer[name] | formData | Customer Name | Yes | string |
+| token | formData | Token obtained from /authenticate | Yes | string |
+| id | path | ID of Customer | Yes | number |
+| customer[account_owner] | formData | Account Owner | No | string |
+| customer[account_manager] | formData | Account Manager | No | string |
+| customer[address] | formData | Address | No | string |
+| customer[city] | formData | City | No | string |
+| customer[state] | formData | State | No | string |
+| customer[zip] | formData | Zip | No | string |
+| customer[phone] | formData | Phone | No | string |
+| customer[contact_first_name] | formData | Contact First Name | No | string |
+| customer[contact_last_name] | formData | Contact Last Name | No | string |
+| customer[contact_email] | formData | Contact Email | No | string |
+| customer[billing_first_name] | formData | Billing First Name - must be between 1 and 50 characters in length | No | string |
+| customer[billing_last_name] | formData | Billing Last Name - must be between 1 and 50 characters in length | No | string |
+| customer[billing_email] | formData | Billing Email - must be between 1 and 255 characters in length | No | string |
+| customer[billing_phone] | formData | Billing Phone - must be between 1 and 50 characters in length | No | string |
+| customer[fee_percentage] | formData | Fee Percentage - must be between 0.0 and 1.0 | No | number |
+| customer[can_post_w2] | formData | True if this Customer can post w2 job requests. Default is False when not set | No | boolean |
+| customer[can_post_1099] | formData | True if this Customer can post 1099 job request. Default is True when not set | No | boolean |
+| customer[can_use_premier_features] | formData | True if this Customer can use premium features | No | boolean |
+| customer[use_start_and_complete_pin] | formData | True if this Customer can use Start and Complete Pin. Default is False when left blank or not set | No | boolean |
+| customer[strategic_pilot] | formData | True if this Customer is strategic pilot | No | boolean |
+| customer[use_pending_state] | formData | True if this Customer can use Pending Workflow. Default is False when not set | No | boolean |
+
+**Responses**
+
+| Code | Description |
+| ---- | ----------- |
+| 404 | Not found. No Customer with the specified ID can be found |
+| 422 | Could not save the Customer |
+
+# /INFO
+## ***GET*** 
+
+**Summary:** Get API information
+
+**Description:** 
+<p>Returns information on the environment, API version, etc. No authentication
+is required.</p>
+
+
+### HTTP Request 
+`***GET*** /info` 
+
+**Parameters**
+
+| Name | Located in | Description | Required | Type |
+| ---- | ---------- | ----------- | -------- | ---- |
 
 **Responses**
 
@@ -427,6 +505,29 @@ ranked order.</p>
 | ---- | ----------- |
 | 403 | Forbidden - if you have Public Pool access only |
 
+# /JOB_REQUESTS/{ID}/RE_RANK_WORKERS
+## ***POST*** 
+
+**Summary:** Re-rank workers for this JobRequest
+
+**Description:** 
+
+### HTTP Request 
+`***POST*** /job_requests/{id}/re_rank_workers` 
+
+**Parameters**
+
+| Name | Located in | Description | Required | Type |
+| ---- | ---------- | ----------- | -------- | ---- |
+| token | formData | Token obtained from /authorize | Yes | string |
+| id | path | ID of Job Request | Yes | number |
+
+**Responses**
+
+| Code | Description |
+| ---- | ----------- |
+| 403 | Forbidden - if you have Public Pool access only |
+
 # /JOB_REQUESTS/{ID}/RESEND_NOTIFICATIONS
 ## ***POST*** 
 
@@ -463,22 +564,57 @@ sent.</p>
 | ---- | ----------- |
 | 403 | Forbidden - if you have Public Pool access only |
 
-# /JOB_REQUESTS/{ID}/RE_RANK_WORKERS
-## ***POST*** 
+# /JOBS
+## ***GET*** 
 
-**Summary:** Re-rank workers for this JobRequest
+**Summary:** List Jobs
 
 **Description:** 
+<p>Returns a list of Jobs, optionally paginated. Note: the maximum number
+returned per page in any case is 50.</p>
+
 
 ### HTTP Request 
-`***POST*** /job_requests/{id}/re_rank_workers` 
+`***GET*** /jobs` 
 
 **Parameters**
 
 | Name | Located in | Description | Required | Type |
 | ---- | ---------- | ----------- | -------- | ---- |
+| token | query | Token obtained from /authorize | Yes | string |
+| page | query | The page number to start from | No | number |
+| per | query | The size of the page | No | number |
+| state | query | Filter Jobs by state | No | string |
+| job_request_id | query | List jobs for the specified Job Request | No | number |
+| classification | query | Return jobs by a specific tax classification | No | string |
+| w2_hourly_rate | query | Return jobs by a specific hourly rate | No | number |
+| w2_pay_status | query | Return jobs by a specific pay status (not_started pending paid) | No | string |
+| updated_before | query | Return jobs by those that were last updated before provided DateTime | No | string |
+| updated_after | query | Return jobs by those that were last updated after provided DateTime | No | string |
+
+**Responses**
+
+| Code | Description |
+| ---- | ----------- |
+| 401 | Unauthorized |
+
+## ***POST*** 
+
+**Summary:** Create a Job
+
+**Description:** 
+
+### HTTP Request 
+`***POST*** /jobs` 
+
+**Parameters**
+
+| Name | Located in | Description | Required | Type |
+| ---- | ---------- | ----------- | -------- | ---- |
+| job[job_request_id] | formData | ID of the Job Request being fulfilled by this Job | Yes | number |
+| job[worker_id] | formData | ID of the Worker to perform the Job | Yes | number |
 | token | formData | Token obtained from /authorize | Yes | string |
-| id | path | ID of Job Request | Yes | number |
+| job[requestor_notes] | formData | Arbitary text to be attached to this Job - not visible to Worker | No | string |
 
 **Responses**
 
@@ -486,117 +622,158 @@ sent.</p>
 | ---- | ----------- |
 | 403 | Forbidden - if you have Public Pool access only |
 
-# /CUSTOMERS/{ID}
-## ***GET*** 
-
-**Summary:** Get a specific Customer
-
-**Description:** 
-
-### HTTP Request 
-`***GET*** /customers/{id}` 
-
-**Parameters**
-
-| Name | Located in | Description | Required | Type |
-| ---- | ---------- | ----------- | -------- | ---- |
-| token | query | Token obtained from /authenticate | Yes | string |
-| id | path | ID of Customer | Yes | number |
-
-**Responses**
-
-| Code | Description |
-| ---- | ----------- |
-| 404 | Not found. No Customer with the specified ID can be found |
-
-## ***PATCH*** 
-
-**Summary:** Update a Customer
-
-**Description:** 
-
-### HTTP Request 
-`***PATCH*** /customers/{id}` 
-
-**Parameters**
-
-| Name | Located in | Description | Required | Type |
-| ---- | ---------- | ----------- | -------- | ---- |
-| customer[name] | formData | Customer Name | Yes | string |
-| token | formData | Token obtained from /authenticate | Yes | string |
-| id | path | ID of Customer | Yes | number |
-| customer[account_owner] | formData | Account Owner | No | string |
-| customer[account_manager] | formData | Account Manager | No | string |
-| customer[address] | formData | Address | No | string |
-| customer[city] | formData | City | No | string |
-| customer[state] | formData | State | No | string |
-| customer[zip] | formData | Zip | No | string |
-| customer[phone] | formData | Phone | No | string |
-| customer[contact_first_name] | formData | Contact First Name | No | string |
-| customer[contact_last_name] | formData | Contact Last Name | No | string |
-| customer[contact_email] | formData | Contact Email | No | string |
-| customer[billing_first_name] | formData | Billing First Name - must be between 1 and 50 characters in length | No | string |
-| customer[billing_last_name] | formData | Billing Last Name - must be between 1 and 50 characters in length | No | string |
-| customer[billing_email] | formData | Billing Email - must be between 1 and 255 characters in length | No | string |
-| customer[billing_phone] | formData | Billing Phone - must be between 1 and 50 characters in length | No | string |
-| customer[fee_percentage] | formData | Fee Percentage - must be between 0.0 and 1.0 | No | number |
-| customer[can_post_w2] | formData | True if this Customer can post w2 job requests. Default is False when not set | No | boolean |
-| customer[can_post_1099] | formData | True if this Customer can post 1099 job request. Default is True when not set | No | boolean |
-| customer[can_use_premier_features] | formData | True if this Customer can use premium features | No | boolean |
-| customer[use_start_and_complete_pin] | formData | True if this Customer can use Start and Complete Pin. Default is False when left blank or not set | No | boolean |
-| customer[strategic_pilot] | formData | True if this Customer is strategic pilot | No | boolean |
-| customer[use_pending_state] | formData | True if this Customer can use Pending Workflow. Default is False when not set | No | boolean |
-
-**Responses**
-
-| Code | Description |
-| ---- | ----------- |
-| 404 | Not found. No Customer with the specified ID can be found |
-| 422 | Could not save the Customer |
-
-# /CUSTOMERS
+# /JOBS/ASSIGN
 ## ***POST*** 
 
-**Summary:** Create a Customer
+**Summary:** Assign a Job
 
 **Description:** 
 
 ### HTTP Request 
-`***POST*** /customers` 
+`***POST*** /jobs/assign` 
 
 **Parameters**
 
 | Name | Located in | Description | Required | Type |
 | ---- | ---------- | ----------- | -------- | ---- |
-| customer[name] | formData | Customer Name | Yes | string |
-| token | formData | Token obtained from /authenticate | Yes | string |
-| customer[account_owner] | formData | Account Owner | No | string |
-| customer[account_manager] | formData | Account Manager | No | string |
-| customer[address] | formData | Address | No | string |
-| customer[city] | formData | City | No | string |
-| customer[state] | formData | State | No | string |
-| customer[zip] | formData | Zip | No | string |
-| customer[phone] | formData | Phone | No | string |
-| customer[contact_first_name] | formData | Contact First Name | No | string |
-| customer[contact_last_name] | formData | Contact Last Name | No | string |
-| customer[contact_email] | formData | Contact Email | No | string |
-| customer[billing_first_name] | formData | Billing First Name - must be between 1 and 50 characters in length | No | string |
-| customer[billing_last_name] | formData | Billing Last Name - must be between 1 and 50 characters in length | No | string |
-| customer[billing_email] | formData | Billing Email - must be between 1 and 255 characters in length | No | string |
-| customer[billing_phone] | formData | Billing Phone - must be between 1 and 50 characters in length | No | string |
-| customer[fee_percentage] | formData | Fee Percentage - must be between 0.0 and 1.0 | No | number |
-| customer[can_post_w2] | formData | True if this Customer can post w2 job requests. Default is False when not set | No | boolean |
-| customer[can_post_1099] | formData | True if this Customer can post 1099 job request. Default is True when not set | No | boolean |
-| customer[can_use_premier_features] | formData | True if this Customer can use premium features | No | boolean |
-| customer[use_start_and_complete_pin] | formData | True if this Customer can use Start and Complete Pin. Default is False when left blank or not set | No | boolean |
-| customer[strategic_pilot] | formData | True if this Customer is strategic pilot | No | boolean |
-| customer[use_pending_state] | formData | True if this Customer can use Pending Workflow. Default is False when not set | No | boolean |
+| job[job_request_id] | formData | ID of the Job Request being fulfilled by this Job | Yes | number |
+| job[worker_id] | formData | ID of the Worker to perform the Job | Yes | number |
+| token | formData | Token obtained from /authorize | Yes | string |
+| job[requestor_notes] | formData | Arbitary text to be attached to this Job - not visible to Worker | No | string |
 
 **Responses**
 
 | Code | Description |
 | ---- | ----------- |
-| 422 | Could not save the Customer |
+| 403 | Forbidden - if you have Public Pool access only |
+
+# /JOBS/{ID}
+## ***PATCH*** 
+
+**Summary:** Update a Job
+
+**Description:** 
+
+### HTTP Request 
+`***PATCH*** /jobs/{id}` 
+
+**Parameters**
+
+| Name | Located in | Description | Required | Type |
+| ---- | ---------- | ----------- | -------- | ---- |
+| token | formData | Token obtained from /authorize | Yes | string |
+| id | path |  | Yes | number |
+| state | formData | Use 'cancelled' if you want cancel a job. | No | string |
+| actual_duration | formData | The actual duration of a job, in minutes | No | number |
+| cancelled_reason | formData | Give a reason such as 'admin_cancelled', 'decided_to_cancel', or 'asked_to_cancel' so that the worker will not receive notifications for this job again | No | string |
+
+**Responses**
+
+| Code | Description |
+| ---- | ----------- |
+| 403 | Forbidden - if you have Public Pool access only |
+
+## ***GET*** 
+
+**Summary:** Get a specific Job
+
+**Description:** 
+
+### HTTP Request 
+`***GET*** /jobs/{id}` 
+
+**Parameters**
+
+| Name | Located in | Description | Required | Type |
+| ---- | ---------- | ----------- | -------- | ---- |
+| token | query | Token obtained from /authorize | Yes | string |
+| id | path |  | Yes | number |
+
+**Responses**
+
+| Code | Description |
+| ---- | ----------- |
+| 200 | ok |
+
+# /MESSAGES
+## ***GET*** 
+
+**Summary:** List Messages
+
+**Description:** 
+<p>Returns a list of Messages, optionally paginated. Note: the maximum number
+returned per page in any case is 50.</p>
+
+
+### HTTP Request 
+`***GET*** /messages` 
+
+**Parameters**
+
+| Name | Located in | Description | Required | Type |
+| ---- | ---------- | ----------- | -------- | ---- |
+| token | query | Token obtained from /authorize | Yes | string |
+| page | query | The page number to start from | No | number |
+| per | query | The size of the page | No | number |
+| job_id | query | Filter Messages by Job | No | number |
+| sender_id | query | Filter Messages by Sender (User ID) | No | number |
+| receiver_id | query | Filter Messages by Receiver (User ID) | No | number |
+
+**Responses**
+
+| Code | Description |
+| ---- | ----------- |
+| 401 | Unauthorized |
+
+## ***POST*** 
+
+**Summary:** Create a Message
+
+**Description:** 
+
+### HTTP Request 
+`***POST*** /messages` 
+
+**Parameters**
+
+| Name | Located in | Description | Required | Type |
+| ---- | ---------- | ----------- | -------- | ---- |
+| message[body] | formData | The text content of this Message | Yes | string |
+| message[job_id] | formData | ID of the Job to which this Message relates | Yes | number |
+| message[receiver_id] | formData | User ID of recipient of this Message. Can be a Wonoloer or a Requestor | Yes | number |
+| message[sender_id] | formData | User ID of sender of this Message. Can be a Wonoloer or a Requestor | Yes | number |
+| token | formData | Token obtained from /authorize | Yes | string |
+| message[image_url] | formData | The URL of an image to accompany this Message | No | string |
+| message[read_at] | formData | If read, when this message was read | No | string |
+
+**Responses**
+
+| Code | Description |
+| ---- | ----------- |
+| 401 | Unauthorized |
+
+# /MESSAGES/{ID}
+## ***GET*** 
+
+**Summary:** Get a specific Message
+
+**Description:** 
+
+### HTTP Request 
+`***GET*** /messages/{id}` 
+
+**Parameters**
+
+| Name | Located in | Description | Required | Type |
+| ---- | ---------- | ----------- | -------- | ---- |
+| token | query | Token obtained from /authorize | Yes | string |
+| id | path | ID of Message | Yes | number |
+
+**Responses**
+
+| Code | Description |
+| ---- | ----------- |
+| 401 | Unauthorized |
 
 # /MULTI_DAY_JOB_REQUESTS
 ## ***POST*** 
@@ -664,6 +841,58 @@ sent.</p>
 | ---- | ---------- | ----------- | -------- | ---- |
 | token | query | Token obtained from /authorize | Yes | string |
 | id | path | ID of the Multi-day Job Request | Yes | number |
+
+**Responses**
+
+| Code | Description |
+| ---- | ----------- |
+| 200 | ok |
+
+# /SEARCH
+## ***GET*** 
+
+**Summary:** Search Wonolo
+
+**Description:** 
+<p>Searches common attributes of the most common Wonolo models</p>
+
+
+### HTTP Request 
+`***GET*** /search` 
+
+**Parameters**
+
+| Name | Located in | Description | Required | Type |
+| ---- | ---------- | ----------- | -------- | ---- |
+| q | query | The search parameter | Yes | string |
+| token | query | Token obtained from /authorize | Yes | string |
+
+**Responses**
+
+| Code | Description |
+| ---- | ----------- |
+| 200 | ok |
+
+# /SYNC_AUTH_TOKEN
+## ***POST*** 
+
+**Summary:** sync auth_token for external user
+
+**Description:** 
+<p>Sync auth token from Wonolo server to external server</p>
+
+
+### HTTP Request 
+`***POST*** /sync_auth_token` 
+
+**Parameters**
+
+| Name | Located in | Description | Required | Type |
+| ---- | ---------- | ----------- | -------- | ---- |
+| created_at | formData | the created time of user session token | Yes | string |
+| auth_token | formData | the auth token of user who need to be synced | Yes | string |
+| synced_worker_id | formData | the id of user on the external server | Yes | number |
+| token | formData | Token obtained from /authorize | Yes | string |
 
 **Responses**
 
@@ -890,234 +1119,5 @@ returned per page in any case is 50.</p>
 | Code | Description |
 | ---- | ----------- |
 | 403 | Forbidden - if you have Public Pool access only |
-
-# /SYNC_AUTH_TOKEN
-## ***POST*** 
-
-**Summary:** sync auth_token for external user
-
-**Description:** 
-<p>Sync auth token from Wonolo server to external server</p>
-
-
-### HTTP Request 
-`***POST*** /sync_auth_token` 
-
-**Parameters**
-
-| Name | Located in | Description | Required | Type |
-| ---- | ---------- | ----------- | -------- | ---- |
-| created_at | formData | the created time of user session token | Yes | string |
-| auth_token | formData | the auth token of user who need to be synced | Yes | string |
-| synced_worker_id | formData | the id of user on the external server | Yes | number |
-| token | formData | Token obtained from /authorize | Yes | string |
-
-**Responses**
-
-| Code | Description |
-| ---- | ----------- |
-| 200 | ok |
-
-# /AUTHENTICATE
-## ***POST*** 
-
-**Summary:** Authenticate and obtain a token
-
-**Description:** 
-<p>Pass in your API publishable key and secret keys and obtain a token to use
-for subsequent API calls. Tokens expire after 24 hours.</p>
-
-
-### HTTP Request 
-`***POST*** /authenticate` 
-
-**Parameters**
-
-| Name | Located in | Description | Required | Type |
-| ---- | ---------- | ----------- | -------- | ---- |
-| secret_key | formData | Your secret API key, e.g. +sk_test_rgyzxu6y_86FXE5YSMjN+ | Yes | string |
-| api_key | formData | Your publishable API key, e.g. +pk_test_k4ttwB9bYVdmVyXgA7fD+ | Yes | string |
-
-**Responses**
-
-| Code | Description |
-| ---- | ----------- |
-| 401 | Your api_key or secret_key is invalid |
-| 422 | You have not specified both api_key and secret_key |
-
-# /SEARCH
-## ***GET*** 
-
-**Summary:** Search Wonolo
-
-**Description:** 
-<p>Searches common attributes of the most common Wonolo models</p>
-
-
-### HTTP Request 
-`***GET*** /search` 
-
-**Parameters**
-
-| Name | Located in | Description | Required | Type |
-| ---- | ---------- | ----------- | -------- | ---- |
-| q | query | The search parameter | Yes | string |
-| token | query | Token obtained from /authorize | Yes | string |
-
-**Responses**
-
-| Code | Description |
-| ---- | ----------- |
-| 200 | ok |
-
-# /INFO
-## ***GET*** 
-
-**Summary:** Get API information
-
-**Description:** 
-<p>Returns information on the environment, API version, etc. No authentication
-is required.</p>
-
-
-### HTTP Request 
-`***GET*** /info` 
-
-**Parameters**
-
-| Name | Located in | Description | Required | Type |
-| ---- | ---------- | ----------- | -------- | ---- |
-
-**Responses**
-
-| Code | Description |
-| ---- | ----------- |
-| 200 | ok |
-
-# /BADGES
-## ***GET*** 
-
-**Summary:** List available Badges
-
-**Description:** 
-<p>Returns a list of available Badges, optionally paginated. Note: the maximum
-number returned per page in any case is 50.</p>
-
-
-### HTTP Request 
-`***GET*** /badges` 
-
-**Parameters**
-
-| Name | Located in | Description | Required | Type |
-| ---- | ---------- | ----------- | -------- | ---- |
-| token | query | Token obtained from /authorize | Yes | string |
-| page | query | The page number to start from | No | number |
-| per | query | The size of the page | No | number |
-| query | query | Filter by name of badge | No | string |
-
-**Responses**
-
-| Code | Description |
-| ---- | ----------- |
-| 401 | Unauthorized |
-
-## ***POST*** 
-
-**Summary:** Create a new Badge
-
-**Description:** 
-
-### HTTP Request 
-`***POST*** /badges` 
-
-**Parameters**
-
-| Name | Located in | Description | Required | Type |
-| ---- | ---------- | ----------- | -------- | ---- |
-| badge[description] | formData | Description of Badge Detail | Yes | string |
-| badge[name] | formData | Name of Badge | Yes | string |
-| token | formData | Token obtained from /authorize | Yes | string |
-| badge[info_url] | formData | External Url for more Information about Badge | No | string |
-| badge[remote_icon_url] | formData | Remote URL of Icon Image | No | string |
-| badge[is_soft] | formData | Allow Wonoloers to be ranked/notified about a job even though they do not have the badge | No | boolean |
-
-**Responses**
-
-| Code | Description |
-| ---- | ----------- |
-| 200 | ok |
-
-# /BADGES/{ID}
-## ***GET*** 
-
-**Summary:** Get a specific Badge
-
-**Description:** 
-
-### HTTP Request 
-`***GET*** /badges/{id}` 
-
-**Parameters**
-
-| Name | Located in | Description | Required | Type |
-| ---- | ---------- | ----------- | -------- | ---- |
-| token | query | Token obtained from /authorize | Yes | string |
-| id | path |  | Yes | number |
-
-**Responses**
-
-| Code | Description |
-| ---- | ----------- |
-| 200 | ok |
-
-## ***PATCH*** 
-
-**Summary:** Update a Badge
-
-**Description:** 
-
-### HTTP Request 
-`***PATCH*** /badges/{id}` 
-
-**Parameters**
-
-| Name | Located in | Description | Required | Type |
-| ---- | ---------- | ----------- | -------- | ---- |
-| badge[description] | formData | Description of Badge Detail | Yes | string |
-| badge[name] | formData | Name of Badge | Yes | string |
-| token | formData | Token obtained from /authorize | Yes | string |
-| id | path |  | Yes | number |
-| badge[info_url] | formData | External Url for more Information about Badge | No | string |
-| badge[remote_icon_url] | formData | Remote URL of Icon Image | No | string |
-| badge[is_soft] | formData | Allow Wonoloers to be ranked/notified about a job even though they do not have the badge | No | boolean |
-
-**Responses**
-
-| Code | Description |
-| ---- | ----------- |
-| 200 | ok |
-
-## ***DELETE*** 
-
-**Summary:** Delete a Badge
-
-**Description:** 
-
-### HTTP Request 
-`***DELETE*** /badges/{id}` 
-
-**Parameters**
-
-| Name | Located in | Description | Required | Type |
-| ---- | ---------- | ----------- | -------- | ---- |
-| token | formData | Token obtained from /authorize | Yes | string |
-| id | path |  | Yes | number |
-
-**Responses**
-
-| Code | Description |
-| ---- | ----------- |
-| 200 | ok |
 
 <!-- Converted with the swagger-to-slate https://github.com/lavkumarv/swagger-to-slate -->
