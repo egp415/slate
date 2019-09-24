@@ -22,6 +22,10 @@ search: true
 
 --- 
 
+2015-2017 Wonolo Inc. All rights reserved. 
+
+**Version:** 2.0 
+
 # /AUTHENTICATE
 ## ***POST*** 
 
